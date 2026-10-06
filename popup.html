@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TruthLens AI</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+
+<h1>TruthLens</h1>
+
+<p class="subtitle">AI-powered news analysis</p>
+
+<button id="analyseBtn">Analyse This Article</button>
+
+<div id="loading" class="hidden">
+   Analysing article...
+</div>
+
+<div id="result" class="hidden">
+
+  <h2 id="verdict"></h2>
+
+  <div class="score">
+    Risk score: <span id="score"></span>%
+  </div>
+
+  <h3>Why?</h3>
+  <ul id="reasons"></ul>
+
+  <h3>Claims to verify</h3>
+  <ul id="claims"></ul>
+
+  <p id="recommendation"></p>
+
+</div>
+
+<script src="popup.js"></script>
+
+</body>
+</html>
