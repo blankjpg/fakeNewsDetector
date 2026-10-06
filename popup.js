@@ -14,31 +14,54 @@ document.getElementById("analyseBtn").addEventListener("click", async () => {
   chrome.tabs.sendMessage(
       tab.id,
       { action: "getArticle" },
-      (article) => {
-
-        loading.classList.add("hidden");
+      async (article) => {
 
         if (chrome.runtime.lastError) {
+          loading.classList.add("hidden");
           alert("ERROR: " + chrome.runtime.lastError.message);
           return;
         }
 
-        result.classList.remove("hidden");
+        try {
+          const response = await fetch("http://localhost:3000/analyse", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              title: article.title,
+              text: article.text
+            })
+          });
 
-        document.getElementById("verdict").textContent =
-            "Article captured!";
+          if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+          }
 
-        document.getElementById("score").textContent =
-            "Testing";
+          const data = await response.json();
 
-        document.getElementById("reasons").innerHTML =
-            "<li>Successfully read the article.</li>";
+          loading.classList.add("hidden");
+          result.classList.remove("hidden");
 
-        document.getElementById("claims").innerHTML =
-            `<li>${article.title}</li>`;
+          document.getElementById("verdict").textContent = data.verdict || "Unknown";
+          document.getElementById("score").textContent = data.riskScore || "N/A";
 
-        document.getElementById("recommendation").textContent =
-            "Ready to send to the AI.";
+          const reasonsList = data.reasons || [];
+          document.getElementById("reasons").innerHTML = reasonsList
+            .map(reason => `<li>${reason}</li>`)
+            .join("");
+
+          const claimsList = data.claims || [];
+          document.getElementById("claims").innerHTML = claimsList
+            .map(claim => `<li>${claim}</li>`)
+            .join("");
+
+          document.getElementById("recommendation").textContent = data.recommendation || "No recommendation available";
+
+        } catch (error) {
+          loading.classList.add("hidden");
+          alert("Failed to analyze article: " + error.message);
+        }
       }
   );
 });
